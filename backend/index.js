@@ -1,4 +1,5 @@
 require('dotenv').config();
+const cors = require('cors');
 const express = require('express');
 const sequelize = require('./src/db');
 const Category = require('./src/models/Category');
@@ -10,11 +11,13 @@ const userRoutes = require('./src/routes/userRoutes');
 const categoryRoutes = require('./src/routes/categoryRoutes');
 
 const app = express();
+app.use(cors());
 app.use(express.json());
 
 app.use('/api/users', userRoutes);
 app.use('/api/categories', categoryRoutes);
 app.use('/api/learning', require('./src/routes/learningRoutes'));
+app.use('/api/admin', require('./src/routes/adminRoutes'));
 
 const PORT = process.env.PORT || 5000;
 

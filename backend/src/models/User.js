@@ -7,4 +7,7 @@ const User = sequelize.define('User', {
     phone: { type: DataTypes.STRING, allowNull: false }
 }, { tableName: 'users', timestamps: false });
 
+const Prompt = require('./Prompt');
+User.hasMany(Prompt, { foreignKey: 'user_id', as: 'Prompts' });
+
 module.exports = User;
