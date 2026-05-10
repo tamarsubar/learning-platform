@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Clock } from 'lucide-react';
+import Layout from '../components/Layout';
+import Robot from '../components/Robot';
 
 interface Category {
   id: number;
   name: string;
 }
 
-const icons = ['📚', '🔬', '💻', '🌍', '🎨', '🧮'];
-const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-orange-500', 'bg-pink-500', 'bg-yellow-500'];
-
 const Categories: React.FC = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/categories')
@@ -23,35 +23,85 @@ const Categories: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">טוען...</div>;
-
   return (
-    <div className="min-h-screen bg-gray-50 p-8" dir="rtl">
-      <div className="max-w-4xl mx-auto">
-        <div className="flex justify-between items-center mb-2">
-          <h1 className="text-3xl font-bold text-gray-800">מה תרצי ללמוד היום?</h1>
-          <button onClick={() => navigate('/history')} className="flex items-center gap-2 text-blue-600 hover:underline">
-            <Clock size={18} />
-            היסטוריה
-          </button>
-        </div>
-        <p className="text-gray-600 mb-8">בחרי קטגוריה כדי להתחיל</p>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {categories.map((cat, i) => (
-            <div
-              key={cat.id}
-              onClick={() => navigate(`/categories/${cat.id}`)}
-              className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md hover:border-blue-300 transition-all cursor-pointer flex items-center gap-6 group"
-            >
-              <div className={`${colors[i % colors.length]} p-4 rounded-xl text-white text-2xl transition-transform group-hover:scale-110`}>
-                {icons[i % icons.length]}
-              </div>
-              <span className="text-xl font-bold text-gray-700">{cat.name}</span>
+    <Layout>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Assistant, Arial, sans-serif' }} dir="rtl">
+
+        {/* Navbar */}
+        <nav style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '12px 28px',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(11,12,30,0.7)',
+        }}>
+          {/* Right (RTL start): user name + history link */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '20px' }}>
+            <div style={{
+              padding: '6px 16px', background: '#1c2035',
+              borderRadius: '20px', color: 'white',
+              fontSize: '14px', fontWeight: 'bold',
+            }}>
+              {user.name || 'משתמש'}
             </div>
-          ))}
+            <button
+              onClick={() => navigate('/history')}
+              style={{ background: 'none', border: 'none', color: '#bbb', cursor: 'pointer', fontSize: '14px' }}
+            >
+              היסטוריית שיחות
+            </button>
+          </div>
+
+          {/* Left (RTL end): branding + robot */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <span style={{ color: '#7c6dfa', fontWeight: 'bold', letterSpacing: '1px', fontSize: '13px' }}>
+              LEARNING PLATFORM
+            </span>
+            <Robot size={36} />
+          </div>
+        </nav>
+
+        {/* Content */}
+        <div className="categories-content">
+          <h1 style={{ color: 'white', fontSize: '38px', fontWeight: 'bold', textAlign: 'right', marginBottom: '10px' }}>
+            מה תרצי ללמוד?
+          </h1>
+          <p style={{ color: '#6b7080', fontSize: '15px', textAlign: 'right', marginBottom: '52px' }}>
+            בחרי תחום ונמשיך משם
+          </p>
+
+          {loading ? (
+            <div style={{ color: '#8080a0', textAlign: 'center' }}>טוען...</div>
+          ) : (
+            <div className="categories-grid">
+              {categories.map(cat => (
+                <div
+                  key={cat.id}
+                  onClick={() => navigate(`/categories/${cat.id}`)}
+                  onMouseEnter={() => setHoveredId(cat.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  style={{
+                    background: hoveredId === cat.id ? '#22284a' : '#1c2035',
+                    border: `1px solid ${hoveredId === cat.id ? '#7c6dfa' : 'rgba(124,109,250,0.2)'}`,
+                    borderRadius: '14px',
+                    padding: '42px 28px',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.2s, background 0.2s',
+                  }}
+                >
+                  <div style={{ textAlign: 'right', fontWeight: 'bold', color: 'white', fontSize: '18px', marginBottom: '10px' }}>
+                    {cat.name}
+                  </div>
+                  <div style={{ textAlign: 'right', color: '#7c6dfa', fontSize: '13px' }}>
+                    ← לחצי להצגת נושאים
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
+
       </div>
-    </div>
+    </Layout>
   );
 };
 

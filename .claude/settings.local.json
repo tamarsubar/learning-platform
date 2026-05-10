@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" --max-time 10 https://api.openai.com/v1/models -H \"Authorization: Bearer test\")",
+      "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const {OpenAI} = require\\('openai'\\); const client = new OpenAI\\({apiKey: process.env.OPENAI_API_KEY}\\); client.models.list\\(\\).then\\(r => console.log\\('SUCCESS:', r.data[0]?.id\\)\\).catch\\(e => console.log\\('ERROR:', e.message, e.status\\)\\)\")",
+      "Bash(node -e \"require\\('dotenv'\\).config\\(\\); const {generateResponse} = require\\('./src/services/aiService'\\); generateResponse\\('שלום, מה שלומך?'\\).then\\(r => console.log\\('RESPONSE:', r\\)\\).catch\\(e => console.log\\('ERROR:', e\\)\\)\")",
+      "Bash(node -e \"const {OpenAI} = require\\('openai'\\); const client = new OpenAI\\({apiKey: 'Sk-proj-aDJnbKJ5gN6cE7lFOurzicpWMVr9UxPkzXjQ8bVpdsnHSqYfW-yqzbsI_zbDnMMvk2AeitSXXuT3BlbkFJ9xCiyFI5K_JPWp7XrxZ4hyLrYVAUd0WXr7pyoiAgtbS7EZOwkGF98_FbsYZIpMAb_WqQEqGbQA'}\\); client.chat.completions.create\\({model:'gpt-3.5-turbo',messages:[{role:'user',content:'hi'}]}\\).then\\(r=>console.log\\('SUCCESS:', r.choices[0].message.content\\)\\).catch\\(e=>console.log\\('ERROR:', e.status, e.code\\)\\)\")",
+      "Bash(git restore *)"
+    ]
+  }
+}

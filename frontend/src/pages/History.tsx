@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowRight, Clock } from 'lucide-react';
+import Layout from '../components/Layout';
+import Robot from '../components/Robot';
 
 interface Prompt {
   id: number;
@@ -16,6 +17,7 @@ const History: React.FC = () => {
   const navigate = useNavigate();
   const [history, setHistory] = useState<Prompt[]>([]);
   const [loading, setLoading] = useState(true);
+  const [expanded, setExpanded] = useState<number | null>(null);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
 
   useEffect(() => {
@@ -26,37 +28,124 @@ const History: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">טוען...</div>;
+  const formatDate = (dateStr: string) => {
+    const d = new Date(dateStr);
+    return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`;
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8" dir="rtl">
-      <div className="max-w-4xl mx-auto">
-        <button onClick={() => navigate('/categories')} className="flex items-center gap-2 text-blue-600 mb-6 hover:underline">
-          <ArrowRight size={20} />
-          חזרה לקטגוריות
-        </button>
+    <Layout>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Assistant, Arial, sans-serif' }} dir="rtl">
 
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">היסטוריית למידה</h1>
-        <p className="text-gray-600 mb-8">שלום {user.name}, הנה כל השיעורים שלך</p>
-
-        {history.length === 0 ? (
-          <div className="text-center text-gray-400 mt-20">אין היסטוריה עדיין. התחילי ללמוד!</div>
-        ) : (
-          <div className="space-y-4">
-            {history.map((item) => (
-              <div key={item.id} className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
-                <div className="flex items-center gap-2 text-gray-400 text-sm mb-3">
-                  <Clock size={14} />
-                  {new Date(item.created_at).toLocaleDateString('he-IL')}
-                </div>
-                <p className="font-bold text-gray-700 mb-2">שאלה: {item.prompt}</p>
-                <p className="text-gray-600 text-sm leading-relaxed">{item.response}</p>
-              </div>
-            ))}
+        {/* Navbar */}
+        <nav style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '12px 28px',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(11,12,30,0.7)',
+        }}>
+          {/* Right (RTL start): breadcrumb */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+            <span style={{ color: '#7c6dfa', fontWeight: 'bold' }}>היסטוריית שיחות</span>
+            <span style={{ color: '#444' }}>|</span>
+            <button
+              onClick={() => navigate('/categories')}
+              style={{ background: 'none', border: 'none', color: '#bbb', cursor: 'pointer', fontSize: '14px' }}
+            >
+              קטגוריות
+            </button>
           </div>
-        )}
+
+          {/* Left (RTL end): robot */}
+          <Robot size={36} />
+        </nav>
+
+        {/* Content */}
+        <div style={{ flex: 1, padding: '60px 80px' }}>
+          <h1 style={{ color: 'white', fontSize: '38px', fontWeight: 'bold', textAlign: 'right', marginBottom: '10px' }}>
+            היסטוריית שיחות
+          </h1>
+          <p style={{ color: '#6b7080', fontSize: '15px', textAlign: 'right', marginBottom: '48px' }}>
+            שלום {user.name} — {history.length} שיחות שמורות
+          </p>
+
+          {loading ? (
+            <div style={{ color: '#8080a0', textAlign: 'center' }}>טוען...</div>
+          ) : history.length === 0 ? (
+            <div style={{ color: '#8080a0', textAlign: 'center', marginTop: '80px', fontSize: '16px' }}>
+              אין היסטוריה עדיין. התחילי ללמוד!
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '760px', margin: '0 auto' }}>
+              {history.map((item, index) => (
+                <div
+                  key={item.id}
+                  style={{
+                    background: '#181a32',
+                    border: `1px solid ${expanded === item.id ? '#7c6dfa' : 'rgba(124,109,250,0.2)'}`,
+                    borderRadius: '12px',
+                    overflow: 'hidden',
+                    transition: 'border-color 0.2s',
+                  }}
+                >
+                  {/* Header row */}
+                  <div
+                    onClick={() => setExpanded(expanded === item.id ? null : item.id)}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '20px 24px',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {/* Right: number + question */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <span style={{ color: '#7c6dfa', fontSize: '13px', fontWeight: 'bold' }}>
+                        {String(index + 1).padStart(2, '0')}
+                      </span>
+                      <span style={{ color: 'white', fontSize: '15px', fontWeight: '500' }}>
+                        {item.prompt}
+                      </span>
+                    </div>
+
+                    {/* Left: triangle + date */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <span style={{ color: '#6b7080', fontSize: '13px' }}>
+                        {formatDate(item.created_at)}
+                      </span>
+                      <span style={{
+                        color: '#7c6dfa',
+                        fontSize: '12px',
+                        transition: 'transform 0.2s',
+                        display: 'inline-block',
+                        transform: expanded === item.id ? 'rotate(180deg)' : 'rotate(0deg)',
+                      }}>
+                        ▲
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Expanded answer */}
+                  {expanded === item.id && (
+                    <div style={{
+                      padding: '16px 24px 22px',
+                      borderTop: '1px solid rgba(124,109,250,0.15)',
+                      color: '#b0b0c8',
+                      fontSize: '14px',
+                      lineHeight: '1.7',
+                      textAlign: 'right',
+                    }}>
+                      {item.response}
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

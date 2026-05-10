@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { ArrowRight, Star } from 'lucide-react';
+import Layout from '../components/Layout';
+import Robot from '../components/Robot';
 
 interface SubCategory {
   id: number;
@@ -19,6 +20,7 @@ const Subcategories: React.FC = () => {
   const navigate = useNavigate();
   const [category, setCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
+  const [hoveredId, setHoveredId] = useState<number | null>(null);
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/categories')
@@ -30,37 +32,98 @@ const Subcategories: React.FC = () => {
       .finally(() => setLoading(false));
   }, [categoryId]);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">טוען...</div>;
-  if (!category) return <div className="min-h-screen flex items-center justify-center">קטגוריה לא נמצאה</div>;
+  if (loading) return (
+    <Layout>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8080a0' }}>
+        טוען...
+      </div>
+    </Layout>
+  );
+
+  if (!category) return (
+    <Layout>
+      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#8080a0' }}>
+        קטגוריה לא נמצאה
+      </div>
+    </Layout>
+  );
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8" dir="rtl">
-      <div className="max-w-4xl mx-auto">
-        <button
-          onClick={() => navigate('/categories')}
-          className="flex items-center gap-2 text-blue-600 mb-6 hover:underline"
-        >
-          <ArrowRight size={20} />
-          חזרה לקטגוריות
-        </button>
+    <Layout>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Assistant, Arial, sans-serif' }} dir="rtl">
 
-        <h1 className="text-3xl font-bold text-gray-800 mb-2">{category.name}</h1>
-        <p className="text-gray-600 mb-8">בחרי נושא ללמידה</p>
-
-        <div className="space-y-4">
-          {category.SubCategories.map((sub) => (
-            <div
-              key={sub.id}
-              onClick={() => navigate(`/chat/${sub.id}?categoryId=${categoryId}`)}
-              className="bg-white p-5 rounded-xl shadow-sm border border-gray-100 hover:border-blue-400 cursor-pointer flex justify-between items-center transition-all"
+        {/* Navbar */}
+        <nav style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '12px 28px',
+          borderBottom: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(11,12,30,0.7)',
+        }}>
+          {/* Right (RTL start): breadcrumb - קטגוריות ← category */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '14px' }}>
+            <button
+              onClick={() => navigate('/categories')}
+              style={{ background: 'none', border: 'none', color: '#bbb', cursor: 'pointer', fontSize: '14px' }}
             >
-              <span className="text-lg font-medium text-gray-700">{sub.name}</span>
-              <Star className="text-yellow-400" />
+              קטגוריות
+            </button>
+            <span style={{ color: '#444' }}>/</span>
+            <span style={{ color: '#7c6dfa', fontWeight: 'bold' }}>{category.name}</span>
+          </div>
+
+          {/* Left (RTL end): robot icon */}
+          <Robot size={36} />
+        </nav>
+
+        {/* Content */}
+        <div style={{ flex: 1, padding: '60px 80px', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+          <div style={{ width: '100%', maxWidth: '720px' }}>
+            <h1 style={{ color: 'white', fontSize: '38px', fontWeight: 'bold', textAlign: 'right', marginBottom: '10px' }}>
+              {category.name}
+            </h1>
+            <p style={{ color: '#6b7080', fontSize: '15px', textAlign: 'right', marginBottom: '48px' }}>
+              בחרי נושא ספציפי להתחלת שיחה
+            </p>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              {category.SubCategories.map((sub, index) => (
+                <div
+                  key={sub.id}
+                  onClick={() => navigate(`/chat/${sub.id}?categoryId=${categoryId}`)}
+                  onMouseEnter={() => setHoveredId(sub.id)}
+                  onMouseLeave={() => setHoveredId(null)}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
+                    padding: '20px 28px',
+                    background: hoveredId === sub.id ? '#1e2245' : '#181a32',
+                    border: `1px solid ${hoveredId === sub.id ? '#7c6dfa' : 'rgba(124,109,250,0.15)'}`,
+                    borderRadius: '12px',
+                    cursor: 'pointer',
+                    transition: 'border-color 0.2s, background 0.2s',
+                  }}
+                >
+                  {/* Right (RTL start): name */}
+                  <span style={{ color: 'white', fontSize: '16px', fontWeight: '500' }}>
+                    {sub.name}
+                  </span>
+
+                  {/* Left (RTL end): number + arrow */}
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                    <span style={{ color: '#7c6dfa', fontSize: '13px', fontWeight: 'bold' }}>
+                      {String(index + 1).padStart(2, '0')}
+                    </span>
+                    <span style={{ color: '#7c6dfa', fontSize: '16px' }}>←</span>
+                  </div>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
         </div>
+
       </div>
-    </div>
+    </Layout>
   );
 };
 

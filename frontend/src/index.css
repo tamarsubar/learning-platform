@@ -1,1 +1,68 @@
 @import "tailwindcss";
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: #0b0c1e;
+  color: white;
+  font-family: 'Assistant', Arial, sans-serif;
+}
+
+@keyframes robotFloat {
+  0%, 100% { transform: translateY(0px); }
+  50% { transform: translateY(-8px); }
+}
+
+.robot-float {
+  animation: robotFloat 3s ease-in-out infinite;
+}
+
+/* Responsive */
+.signup-split {
+  flex: 1;
+  display: flex;
+}
+
+.signup-robot-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 40px;
+}
+
+.signup-form-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 80px;
+}
+
+.categories-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  max-width: 1100px;
+  width: 100%;
+}
+
+.categories-content {
+  flex: 1;
+  padding: 60px 80px;
+}
+
+@media (max-width: 900px) {
+  .signup-split { flex-direction: column-reverse; }
+  .signup-robot-side { padding: 32px 24px; }
+  .signup-form-side { padding: 32px 24px; }
+  .categories-grid { grid-template-columns: 1fr; }
+  .categories-content { padding: 32px 24px; }
+}
+
+@media (min-width: 901px) and (max-width: 1100px) {
+  .categories-grid { grid-template-columns: repeat(2, 1fr); }
+}

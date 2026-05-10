@@ -1,3 +1,4 @@
+const e = require('express');
 const User = require('../models/User');
 
 exports.registerUser = async (req, res) => {
@@ -15,12 +16,17 @@ exports.registerUser = async (req, res) => {
             return res.status(400).json({ error: "מספר טלפון לא תקין" });
         }
 
-        const newUser = await User.create({ 
-            name: name.trim(), 
-            phone: phone.trim() 
+        const existingUser = await User.findOne({ where: { phone: phone.trim() } });
+        if (existingUser) {
+            return res.status(200).json({ message: "ברוכה השבה!", user: existingUser });
+        }
+
+        const newUser = await User.create({
+            name: name.trim(),
+            phone: phone.trim()
         });
         res.status(201).json({ message: "משתמש נרשם בהצלחה!", user: newUser });
     } catch (error) {
-        res.status(500).json({ error: "שגיאה ברישום המשתמש" });
+        res.status(500).json({ error: error.message || "שגיאה ברישום המשתמש" });
     }
 };
