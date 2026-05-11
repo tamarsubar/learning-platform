@@ -13,9 +13,15 @@ exports.generateResponse = async (promptText) => {
     });
 
     const data = await response.json();
+
+    if (!response.ok || !data.choices) {
+      console.error("OpenAI API error:", JSON.stringify(data));
+      throw new Error(data.error?.message || "Unknown OpenAI error");
+    }
+
     return data.choices[0].message.content;
   } catch (error) {
-    console.error("AI Error:", error);
+    console.error("AI Error:", error.message);
     return "מצטער, ה-AI נתקל בשגיאה. נסי שוב מאוחר יותר.";
   }
 };

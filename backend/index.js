@@ -26,57 +26,57 @@ const seedDatabase = async () => {
     if (categoryCount === 0) {
         console.log('🌱 Filling database with initial categories...');
 
-        const history = await Category.create({ name: 'היסטוריה' });
+        const history = await Category.create({ name: 'History' });
         await SubCategory.bulkCreate([
-            { name: 'יוון העתיקה', category_id: history.id },
-            { name: 'המהפכה הצרפתית', category_id: history.id },
-            { name: 'תולדות מדינת ישראל', category_id: history.id },
-            { name: 'מלחמת העולם השנייה', category_id: history.id },
-            { name: 'האימפריה הרומית', category_id: history.id },
-            { name: 'המהפכה התעשייתית', category_id: history.id }
+            { name: 'Ancient Greece', category_id: history.id },
+            { name: 'The French Revolution', category_id: history.id },
+            { name: 'History of Israel', category_id: history.id },
+            { name: 'World War II', category_id: history.id },
+            { name: 'The Roman Empire', category_id: history.id },
+            { name: 'The Industrial Revolution', category_id: history.id }
         ]);
 
-        const science = await Category.create({ name: 'מדע' });
+        const science = await Category.create({ name: 'Science' });
         await SubCategory.bulkCreate([
-            { name: 'אסטרונומיה וחלל', category_id: science.id },
-            { name: 'ביולוגיה של האדם', category_id: science.id },
-            { name: 'פיזיקה קוונטית', category_id: science.id },
-            { name: 'כימיה אורגנית', category_id: science.id },
-            { name: 'אבולוציה וגנטיקה', category_id: science.id }
+            { name: 'Astronomy & Space', category_id: science.id },
+            { name: 'Human Biology', category_id: science.id },
+            { name: 'Quantum Physics', category_id: science.id },
+            { name: 'Organic Chemistry', category_id: science.id },
+            { name: 'Evolution & Genetics', category_id: science.id }
         ]);
 
-        const tech = await Category.create({ name: 'טכנולוגיה' });
+        const tech = await Category.create({ name: 'Technology' });
         await SubCategory.bulkCreate([
-            { name: 'בינה מלאכותית', category_id: tech.id },
-            { name: 'פיתוח אפליקציות', category_id: tech.id },
-            { name: 'אבטחת מידע וסייבר', category_id: tech.id },
-            { name: 'רשתות מחשבים', category_id: tech.id },
-            { name: 'מסדי נתונים', category_id: tech.id }
+            { name: 'Artificial Intelligence', category_id: tech.id },
+            { name: 'App Development', category_id: tech.id },
+            { name: 'Cybersecurity', category_id: tech.id },
+            { name: 'Computer Networks', category_id: tech.id },
+            { name: 'Databases', category_id: tech.id }
         ]);
 
-        const math = await Category.create({ name: 'מתמטיקה' });
+        const math = await Category.create({ name: 'Mathematics' });
         await SubCategory.bulkCreate([
-            { name: 'אלגברה לינארית', category_id: math.id },
-            { name: 'חשבון דיפרנציאלי', category_id: math.id },
-            { name: 'גיאומטריה אנליטית', category_id: math.id },
-            { name: 'תורת הקבוצות', category_id: math.id },
-            { name: 'סטטיסטיקה והסתברות', category_id: math.id }
+            { name: 'Linear Algebra', category_id: math.id },
+            { name: 'Differential Calculus', category_id: math.id },
+            { name: 'Analytic Geometry', category_id: math.id },
+            { name: 'Set Theory', category_id: math.id },
+            { name: 'Statistics & Probability', category_id: math.id }
         ]);
 
-        const literature = await Category.create({ name: 'ספרות ושפה' });
+        const literature = await Category.create({ name: 'Literature & Language' });
         await SubCategory.bulkCreate([
-            { name: 'ספרות עברית מודרנית', category_id: literature.id },
-            { name: 'ספרות עולמית קלאסית', category_id: literature.id },
-            { name: 'שירה ופואטיקה', category_id: literature.id },
-            { name: 'בלשנות ותורת השפה', category_id: literature.id }
+            { name: 'Modern Hebrew Literature', category_id: literature.id },
+            { name: 'Classic World Literature', category_id: literature.id },
+            { name: 'Poetry & Poetics', category_id: literature.id },
+            { name: 'Linguistics', category_id: literature.id }
         ]);
 
-        const geo = await Category.create({ name: 'גיאוגרפיה' });
+        const geo = await Category.create({ name: 'Geography' });
         await SubCategory.bulkCreate([
-            { name: 'גיאוגרפיה של ישראל', category_id: geo.id },
-            { name: 'יבשות ואוקיינוסים', category_id: geo.id },
-            { name: 'אקלים ומזג אוויר', category_id: geo.id },
-            { name: 'מדינות ובירות העולם', category_id: geo.id }
+            { name: 'Geography of Israel', category_id: geo.id },
+            { name: 'Continents & Oceans', category_id: geo.id },
+            { name: 'Climate & Weather', category_id: geo.id },
+            { name: 'Countries & Capitals', category_id: geo.id }
         ]);
 
         console.log('✅ Database seeded successfully!');

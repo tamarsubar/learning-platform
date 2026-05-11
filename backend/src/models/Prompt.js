@@ -26,11 +26,15 @@ const Prompt = sequelize.define('Prompt', {
     response: { 
         type: DataTypes.TEXT
     },
-    created_at: { 
-        type: DataTypes.DATE, 
-        defaultValue: DataTypes.NOW 
+    created_at: {
+        type: DataTypes.DATE,
+        defaultValue: DataTypes.NOW
+    },
+    session_id: {
+        type: DataTypes.STRING,
+        allowNull: true
     }
-}, { 
+}, {
     tableName: 'prompts', 
     timestamps: false 
 });

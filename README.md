@@ -1,96 +1,122 @@
-# AI-Driven Learning Platform 🎓
+# AI-Driven Learning Platform
 
-A mini learning platform that allows users to select topics, interact with an AI tutor, and review their learning history.
+A full-stack mini learning platform that allows users to select topics, receive AI-generated lessons, and review their learning history.
 
 ---
 
-## Tech Stack
+## Technologies Used
 
-**Frontend:** React, TypeScript, Tailwind CSS, Vite  
-**Backend:** Node.js, Express.js  
-**Database:** PostgreSQL + Sequelize ORM  
-**AI:** OpenAI GPT API  
+| Layer | Technology |
+|-------|-----------|
+| Frontend | React 18, TypeScript, Vite, React Router |
+| Backend | Node.js, Express.js |
+| Database | PostgreSQL + Sequelize ORM |
+| AI | OpenAI GPT API (gpt-3.5-turbo) |
+| DevOps | Docker, Docker Compose |
 
 ---
 
 ## Project Structure
 
+```
 learning-platform/
-├── frontend/         # React + TypeScript app
-│   └── src/
-│       ├── pages/    # Signup, Categories, Subcategories, Chat, History, Admin
-│       └── App.tsx
 ├── backend/
-│   └── src/
-│       ├── controllers/
-│       ├── models/
-│       ├── routes/
-│       └── services/
-└── README.md
+│   ├── src/
+│   │   ├── controllers/    # Request handlers
+│   │   ├── models/         # Sequelize models
+│   │   ├── routes/         # API routes
+│   │   └── services/       # AI service
+│   ├── index.js            # Entry point + DB seed
+│   └── .env.example
+├── frontend/
+│   ├── src/
+│   │   ├── pages/          # React pages
+│   │   └── components/     # Shared components
+│   └── index.html
+└── docker-compose.yml
+```
 
 ---
 
-## Getting Started
+## Database Schema
 
-### Prerequisites
-- Node.js v18+
-- PostgreSQL
+- **users** – id, name, phone
+- **categories** – id, name
+- **sub_categories** – id, name, category_id
+- **prompts** – id, user_id, category_id, sub_category_id, prompt, response, created_at
 
-### 1. Clone the repository
-git clone <your-repo-url>
+---
+
+## How to Run Locally
+
+### Option 1 – Docker Compose (Recommended)
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/tamarsubar/learning-platform.git
 cd learning-platform
 
-### 2. Setup Backend
+# 2. Create .env file in the backend folder
+cp backend/.env.example backend/.env
+# Edit .env and add your OpenAI API key
+
+# 3. Start everything
+docker-compose up --build
+```
+
+- Frontend: http://localhost:5173  
+- Backend: http://localhost:5000
+
+---
+
+### Option 2 – Run Manually
+
+**Prerequisites:** Node.js 18+, PostgreSQL running locally
+
+**Backend:**
+```bash
 cd backend
 npm install
-
-Create a .env file:
-PORT=5000
-DATABASE_URL=postgres://user:password@localhost:5432/learning_platform_db
-OPENAI_API_KEY=your_openai_api_key
-
-Run the backend:
+cp .env.example .env
+# Edit .env and add your OpenAI API key
 npm run dev
+```
 
-### 3. Setup Frontend
+**Frontend:**
+```bash
 cd frontend
 npm install
 npm run dev
+```
+
+The server will auto-create all tables and seed initial categories on first run.
+
+---
+
+## Environment Variables
+
+See `backend/.env.example` for reference.
+
+| Variable | Description |
+|----------|-------------|
+| `PORT` | Server port (default: 5000) |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `OPENAI_API_KEY` | Your OpenAI API key |
 
 ---
 
 ## Features
 
-- User Registration — name and phone number
-- Category Selection — loaded dynamically from the database
-- Sub-category Selection — filtered by category
-- AI Chat — send prompts and receive lesson-like responses
-- Learning History — view all past prompts and responses per user
-- Admin Dashboard — view all users and their learning history at /admin
-
----
-
-## API Endpoints
-
-POST   /api/users/register         Register a new user
-GET    /api/categories             Get all categories with subcategories
-POST   /api/learning/chat          Send prompt to AI
-GET    /api/learning/history/:userId  Get user learning history
-GET    /api/admin/users            Get all users with prompts (admin)
+- User registration – name + phone (returning users are recognized by phone number)
+- Category & sub-category selection – 6 categories with multiple topics each
+- AI-powered lessons – prompts sent to OpenAI GPT and returned as lessons
+- Learning history – all conversations saved per user in the database
+- Admin dashboard – view all users and their full prompt history at `/admin`
 
 ---
 
 ## Assumptions
 
-- No authentication (JWT) implemented in this version
-- First user is created on signup; userId is stored in localStorage
-- Database is seeded automatically on first run with sample categories
-- AI integration uses OpenAI GPT-3.5-turbo (can be swapped via aiService.js)
-
----
-
-## Sample .env
-
-PORT=5000
-DATABASE_URL=postgres://postgres:yourpassword@localhost:5432/learning_platform_db
-OPENAI_API_KEY=sk-...
+- No password authentication — users are identified by phone number
+- The database is seeded automatically on first server start
+- The frontend runs on Vite dev server (port 5173)

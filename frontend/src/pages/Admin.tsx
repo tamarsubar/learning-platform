@@ -1,29 +1,21 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Users, MessageSquare, ChevronDown, ChevronUp } from 'lucide-react';
+import Layout from '../components/Layout';
+import LangToggle from '../components/LangToggle';
+import UserMenu from '../components/UserMenu';
+import { useLanguage } from '../context/LanguageContext';
 
-interface Prompt {
-  id: number;
-  prompt: string;
-  response: string;
-  created_at: string;
-  category_id: number;
-  sub_category_id: number;
-}
-
-interface User {
-  id: number;
-  name: string;
-  phone: string;
-  Prompts?: Prompt[];
-}
+interface Prompt { id: number; prompt: string; response: string; created_at: string; }
+interface User { id: number; name: string; phone: string; Prompts?: Prompt[]; }
 
 const Admin: React.FC = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedUser, setExpandedUser] = useState<number | null>(null);
+  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const { t } = useLanguage();
 
   useEffect(() => {
     axios.get('http://localhost:5000/api/admin/users')
@@ -32,88 +24,105 @@ const Admin: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) return <div className="min-h-screen flex items-center justify-center">טוען...</div>;
+  const totalPrompts = users.reduce((acc, u) => acc + (u.Prompts?.length || 0), 0);
+  const formatDate = (s: string) => { const d = new Date(s); return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`; };
+
+  const linkBtn: React.CSSProperties = {
+    background: 'none', border: 'none', color: '#6060a0',
+    cursor: 'pointer', fontSize: '13px', padding: 0,
+  };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-8" dir="rtl">
-      <div className="max-w-5xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-            <p className="text-gray-500 mt-1">ניהול משתמשים והיסטוריית למידה</p>
+    <Layout>
+      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, Arial, sans-serif' }}>
+        <nav style={{
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+          padding: '12px 28px', borderBottom: '1px solid rgba(255,255,255,0.07)',
+          background: 'rgba(11,12,30,0.7)',
+        }}>
+          {/* Left: breadcrumb */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
+            <button onClick={() => navigate('/categories')} style={linkBtn}
+              onMouseEnter={e => (e.currentTarget.style.color = '#9b8fff')}
+              onMouseLeave={e => (e.currentTarget.style.color = '#6060a0')}>
+              {t('Categories', 'קטגוריות', 'الفئات')}
+            </button>
+            <span style={{ color: '#3a3a5a' }}>›</span>
+            <span style={{ color: 'white', fontWeight: '600' }}>{t('Admin', 'ניהול', 'الإدارة')}</span>
           </div>
-          <button onClick={() => navigate('/categories')} className="text-blue-600 hover:underline text-sm">
-            חזרה לאתר
-          </button>
-        </div>
 
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-            <div className="bg-blue-100 p-3 rounded-xl">
-              <Users className="text-blue-600" size={24} />
+          {/* Right: controls */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <LangToggle />
+            <UserMenu user={currentUser} onSwitch={() => { localStorage.removeItem('user'); navigate('/'); }} />
+          </div>
+        </nav>
+
+        <div style={{ flex: 1, padding: '48px 60px' }}>
+          <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', marginBottom: '8px' }}>
+            {t('User Management', 'ניהול משתמשים', 'إدارة المستخدمين')}
+          </h1>
+          <p style={{ color: '#6b7080', fontSize: '15px', marginBottom: '40px' }}>
+            {t('All users and their conversation history', 'רשימת כל המשתמשים והיסטוריית השיחות שלהם', 'جميع المستخدمين وسجل محادثاتهم')}
+          </p>
+
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '500px', marginBottom: '40px' }}>
+            <div style={{ background: '#1c2035', border: '1px solid rgba(124,109,250,0.2)', borderRadius: '14px', padding: '20px 24px' }}>
+              <p style={{ color: '#8080a0', fontSize: '13px', marginBottom: '6px' }}>{t('Total Users', 'סה"כ משתמשים', 'إجمالي المستخدمين')}</p>
+              <p style={{ color: 'white', fontSize: '28px', fontWeight: 'bold' }}>{users.length}</p>
             </div>
-            <div>
-              <p className="text-gray-500 text-sm">סה"כ משתמשים</p>
-              <p className="text-2xl font-bold text-gray-800">{users.length}</p>
+            <div style={{ background: '#1c2035', border: '1px solid rgba(124,109,250,0.2)', borderRadius: '14px', padding: '20px 24px' }}>
+              <p style={{ color: '#8080a0', fontSize: '13px', marginBottom: '6px' }}>{t('Total Conversations', 'סה"כ שיחות', 'إجمالي المحادثات')}</p>
+              <p style={{ color: 'white', fontSize: '28px', fontWeight: 'bold' }}>{totalPrompts}</p>
             </div>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100 flex items-center gap-4">
-            <div className="bg-green-100 p-3 rounded-xl">
-              <MessageSquare className="text-green-600" size={24} />
-            </div>
-            <div>
-              <p className="text-gray-500 text-sm">סה"כ שאלות</p>
-              <p className="text-2xl font-bold text-gray-800">
-                {users.reduce((acc, u) => acc + (u.Prompts?.length || 0), 0)}
-              </p>
-            </div>
-          </div>
-        </div>
 
-        <div className="space-y-4">
-          {users.map(user => (
-            <div key={user.id} className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
-              <div
-                className="p-5 flex justify-between items-center cursor-pointer hover:bg-gray-50"
-                onClick={() => setExpandedUser(expandedUser === user.id ? null : user.id)}
-              >
-                <div className="flex items-center gap-4">
-                  <div className="bg-blue-600 text-white w-10 h-10 rounded-full flex items-center justify-center font-bold">
-                    {user.name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="font-bold text-gray-800">{user.name}</p>
-                    <p className="text-gray-500 text-sm">{user.phone}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="text-sm text-gray-400">{user.Prompts?.length || 0} שאלות</span>
-                  {expandedUser === user.id ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                </div>
-              </div>
-
-              {expandedUser === user.id && (
-                <div className="border-t border-gray-100 p-5 space-y-3 bg-gray-50">
-                  {!user.Prompts?.length ? (
-                    <p className="text-gray-400 text-sm text-center">אין היסטוריה למשתמש זה</p>
-                  ) : (
-                    user.Prompts.map(prompt => (
-                      <div key={prompt.id} className="bg-white p-4 rounded-lg border border-gray-100">
-                        <p className="text-xs text-gray-400 mb-2">
-                          {new Date(prompt.created_at).toLocaleDateString('he-IL')}
-                        </p>
-                        <p className="font-medium text-gray-700 mb-1">שאלה: {prompt.prompt}</p>
-                        <p className="text-gray-500 text-sm line-clamp-2">{prompt.response}</p>
+          {loading ? (
+            <div style={{ color: '#8080a0', textAlign: 'center' }}>{t('Loading...', 'טוען...', 'جاري التحميل...')}</div>
+          ) : users.length === 0 ? (
+            <div style={{ color: '#8080a0', textAlign: 'center', marginTop: '60px' }}>{t('No users yet', 'אין משתמשים עדיין', 'لا يوجد مستخدمون بعد')}</div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '900px' }}>
+              {users.map(user => (
+                <div key={user.id} style={{ background: '#181a32', border: `1px solid ${expandedUser === user.id ? '#7c6dfa' : 'rgba(124,109,250,0.2)'}`, borderRadius: '12px', overflow: 'hidden', transition: 'border-color 0.2s' }}>
+                  <div onClick={() => setExpandedUser(expandedUser === user.id ? null : user.id)}
+                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', cursor: 'pointer' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
+                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c5cf5, #9b78ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '16px', flexShrink: 0 }}>
+                        {user.name.charAt(0).toUpperCase()}
                       </div>
-                    ))
+                      <div>
+                        <p style={{ color: 'white', fontWeight: 'bold', fontSize: '15px', marginBottom: '2px' }}>{user.name}</p>
+                        <p style={{ color: '#8080a0', fontSize: '13px' }}>{user.phone}</p>
+                      </div>
+                    </div>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <span style={{ color: '#7c6dfa', fontSize: '13px' }}>{user.Prompts?.length || 0} {t('conversations', 'שיחות', 'محادثات')}</span>
+                      <span style={{ color: '#7c6dfa', fontSize: '12px', transition: 'transform 0.2s', display: 'inline-block', transform: expandedUser === user.id ? 'rotate(180deg)' : 'rotate(0deg)' }}>▲</span>
+                    </div>
+                  </div>
+                  {expandedUser === user.id && (
+                    <div style={{ borderTop: '1px solid rgba(124,109,250,0.15)', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                      {!user.Prompts?.length ? (
+                        <p style={{ color: '#8080a0', textAlign: 'center', fontSize: '14px' }}>{t('No history for this user', 'אין היסטוריה למשתמש זה', 'لا يوجد سجل لهذا المستخدم')}</p>
+                      ) : (
+                        user.Prompts.map(p => (
+                          <div key={p.id} style={{ background: '#1c2035', borderRadius: '10px', padding: '14px 18px', border: '1px solid rgba(124,109,250,0.1)' }}>
+                            <p style={{ color: '#6b7080', fontSize: '12px', marginBottom: '6px' }}>{formatDate(p.created_at)}</p>
+                            <p style={{ color: 'white', fontSize: '14px', fontWeight: '500', marginBottom: '6px' }}>{p.prompt}</p>
+                            <p style={{ color: '#9090b0', fontSize: '13px', lineHeight: '1.6' }}>{p.response}</p>
+                          </div>
+                        ))
+                      )}
+                    </div>
                   )}
                 </div>
-              )}
+              ))}
             </div>
-          ))}
+          )}
         </div>
       </div>
-    </div>
+    </Layout>
   );
 };
 

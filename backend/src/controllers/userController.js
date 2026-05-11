@@ -7,26 +7,26 @@ exports.registerUser = async (req, res) => {
 
         // Validation
         if (!name || !phone) {
-            return res.status(400).json({ error: "שם וטלפון הם שדות חובה" });
+            return res.status(400).json({ error: "Name and phone are required" });
         }
         if (name.trim().length < 2) {
-            return res.status(400).json({ error: "שם חייב להכיל לפחות 2 תווים" });
+            return res.status(400).json({ error: "Name must be at least 2 characters" });
         }
         if (phone.trim().length < 7) {
-            return res.status(400).json({ error: "מספר טלפון לא תקין" });
+            return res.status(400).json({ error: "Invalid phone number" });
         }
 
         const existingUser = await User.findOne({ where: { phone: phone.trim() } });
         if (existingUser) {
-            return res.status(200).json({ message: "ברוכה השבה!", user: existingUser });
+            return res.status(200).json({ message: "Welcome back!", user: existingUser });
         }
 
         const newUser = await User.create({
             name: name.trim(),
             phone: phone.trim()
         });
-        res.status(201).json({ message: "משתמש נרשם בהצלחה!", user: newUser });
+        res.status(201).json({ message: "User registered successfully!", user: newUser });
     } catch (error) {
-        res.status(500).json({ error: error.message || "שגיאה ברישום המשתמש" });
+        res.status(500).json({ error: error.message || "Registration error" });
     }
 };

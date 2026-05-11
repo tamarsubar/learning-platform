@@ -6,7 +6,7 @@ body {
   margin: 0;
   background: #0b0c1e;
   color: white;
-  font-family: 'Assistant', Arial, sans-serif;
+  font-family: 'Inter', Arial, sans-serif;
 }
 
 @keyframes robotFloat {
