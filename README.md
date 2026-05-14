@@ -60,8 +60,13 @@ cd learning-platform
 cp backend/.env.example backend/.env
 # Edit .env and add your OpenAI API key
 
-# 3. Start everything
+# 3. Start the database and backend
 docker-compose up --build
+
+# 4. In a separate terminal, start the frontend
+cd frontend
+npm install
+npm run dev
 ```
 
 - Frontend: http://localhost:5173  
