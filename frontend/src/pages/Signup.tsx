@@ -5,15 +5,37 @@ import Layout from '../components/Layout';
 import Robot from '../components/Robot';
 import LangToggle from '../components/LangToggle';
 import { useLanguage } from '../context/LanguageContext';
+import styles from './Signup.module.css';
 
 const Signup: React.FC = () => {
+  const [activeTab, setActiveTab] = useState<'user' | 'admin'>('user');
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
   const [loading, setLoading] = useState(false);
-  const [focused, setFocused] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ name?: string; phone?: string; general?: string }>({});
+  const [adminPassword, setAdminPassword] = useState('');
+  const [adminLoading, setAdminLoading] = useState(false);
+  const [adminError, setAdminError] = useState('');
   const navigate = useNavigate();
   const { t, isRTL } = useLanguage();
+
+  const handleAdminLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setAdminLoading(true);
+    setAdminError('');
+    try {
+      const res = await axios.get(`http://localhost:5000/api/admin/login?password=${adminPassword}`);
+      if (res.data.ok) {
+        sessionStorage.setItem('admin_auth', 'true');
+        sessionStorage.setItem('admin_auth_pw', adminPassword);
+        navigate('/admin');
+      }
+    } catch {
+      setAdminError(t('Wrong password', 'סיסמא שגויה', 'كلمة مرور خاطئة'));
+    } finally {
+      setAdminLoading(false);
+    }
+  };
 
   const validate = () => {
     const newErrors: { name?: string; phone?: string } = {};
@@ -41,23 +63,17 @@ const Signup: React.FC = () => {
     }
   };
 
-  const inputStyle = (field: string): React.CSSProperties => ({
-    width: '100%', padding: '14px 16px',
-    background: '#0f0f2a',
-    border: `2px solid ${errors[field as keyof typeof errors] ? '#e05555' : focused === field ? '#7c6dfa' : 'rgba(124,109,250,0.25)'}`,
-    borderRadius: '10px', color: 'white', fontSize: '15px',
-    outline: 'none', boxSizing: 'border-box', transition: 'border-color 0.2s',
-    direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left',
-  });
+  const inputDir: React.CSSProperties = { direction: isRTL ? 'rtl' : 'ltr', textAlign: isRTL ? 'right' : 'left' };
 
   return (
     <Layout>
-      <div style={{ position: 'fixed', top: '14px', right: '16px', zIndex: 10 }}>
+      <div className={styles.langTogglePos}>
         <LangToggle />
       </div>
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, Arial, sans-serif' }}>
+      <div className={styles.page}>
         <div className="signup-split">
 
+          {/* Left: robot side */}
           <div className="signup-robot-side">
             <Robot size={200} />
             <h2 style={{ color: 'white', fontSize: '34px', fontWeight: 'bold', marginTop: '28px', marginBottom: '14px', textAlign: 'center' }}>
@@ -77,61 +93,108 @@ const Signup: React.FC = () => {
             </div>
           </div>
 
-          <div style={{ width: '1px', background: 'rgba(124,109,250,0.2)', alignSelf: 'stretch' }} />
+          <div className={styles.divider} />
 
+          {/* Right: tabs + content */}
           <div className="signup-form-side" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-            <h1 style={{ color: 'white', fontSize: '26px', fontWeight: 'bold', marginBottom: '8px', textAlign: 'center' }}>
-              {t('Welcome to the Platform', 'ברוך הבא לפלטפורמה', 'مرحباً بك في المنصة')}
-            </h1>
-            <p style={{ color: '#8080a0', fontSize: '13px', marginBottom: '40px', textAlign: 'center' }}>
-              {t('Enter your details to start learning', 'הכנס פרטים כדי להתחיל ללמוד', 'أدخل بياناتك لبدء التعلم')}
-            </p>
 
-            <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: '380px' }}>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', color: '#9090b0', fontSize: '13px', marginBottom: '8px' }}>
-                  {t('Full Name', 'שם מלא', 'الاسم الكامل')}
-                </label>
-                <input
-                  type="text"
-                  placeholder={t('Enter your name', 'הכנס שם', 'أدخل اسمك')}
-                  value={name}
-                  onChange={e => { setName(e.target.value); setErrors(p => ({ ...p, name: undefined })); }}
-                  onFocus={() => setFocused('name')}
-                  onBlur={() => setFocused(null)}
-                  style={inputStyle('name')}
-                />
-                {errors.name && <p style={{ color: '#e05555', fontSize: '12px', marginTop: '6px' }}>{errors.name}</p>}
-              </div>
-
-              <div style={{ marginBottom: '28px' }}>
-                <label style={{ display: 'block', color: '#9090b0', fontSize: '13px', marginBottom: '8px' }}>
-                  {t('Phone Number', 'מספר טלפון', 'رقم الهاتف')}
-                </label>
-                <input
-                  type="tel"
-                  placeholder={t('Enter phone number', 'הכנס טלפון', 'أدخل رقم الهاتف')}
-                  value={phone}
-                  onChange={e => { setPhone(e.target.value); setErrors(p => ({ ...p, phone: undefined })); }}
-                  onFocus={() => setFocused('phone')}
-                  onBlur={() => setFocused(null)}
-                  style={inputStyle('phone')}
-                />
-                {errors.phone && <p style={{ color: '#e05555', fontSize: '12px', marginTop: '6px' }}>{errors.phone}</p>}
-              </div>
-
-              {errors.general && <p style={{ color: '#e05555', fontSize: '13px', textAlign: 'center', marginBottom: '16px' }}>{errors.general}</p>}
-
-              <button type="submit" disabled={loading} style={{
-                width: '100%', padding: '15px',
-                background: loading ? '#444' : 'linear-gradient(135deg, #7c5cf5, #9b78ff)',
-                border: 'none', borderRadius: '10px', color: 'white',
-                fontSize: '16px', fontWeight: 'bold',
-                cursor: loading ? 'not-allowed' : 'pointer', transition: 'opacity 0.2s',
-              }}>
-                {loading ? t('Loading...', 'טוען...', 'جاري التحميل...') : t('Start Learning', 'כניסה', 'ابدأ التعلم')}
+            <div className={styles.tabs}>
+              <button
+                className={`${styles.tab} ${activeTab === 'user' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('user')}
+              >
+                {t('User', 'משתמש', 'مستخدم')}
               </button>
-            </form>
+              <button
+                className={`${styles.tab} ${activeTab === 'admin' ? styles.tabActive : ''}`}
+                onClick={() => setActiveTab('admin')}
+              >
+                {t('Admin', 'מנהל', 'مدير')}
+              </button>
+            </div>
+
+            {/* User tab */}
+            {activeTab === 'user' && (
+              <>
+                <h1 className={styles.title}>
+                  {t('Welcome to the Platform', 'ברוך הבא לפלטפורמה', 'مرحباً بك في المنصة')}
+                </h1>
+                <p className={styles.subtitle}>
+                  {t('Enter your details to start learning', 'הכנס פרטים כדי להתחיל ללמוד', 'أدخل بياناتك لبدء التعلم')}
+                </p>
+
+                <form onSubmit={handleSubmit} className={styles.form}>
+                  <div className={styles.fieldWrap}>
+                    <label className={styles.label}>
+                      {t('Full Name', 'שם מלא', 'الاسم الكامل')}
+                    </label>
+                    <input
+                      type="text"
+                      placeholder={t('Enter your name', 'הכנס שם', 'أدخل اسمك')}
+                      value={name}
+                      onChange={e => { setName(e.target.value); setErrors(p => ({ ...p, name: undefined })); }}
+                      className={`${styles.input} ${errors.name ? styles.inputError : ''}`}
+                      style={inputDir}
+                    />
+                    {errors.name && <p className={styles.errorMsg}>{errors.name}</p>}
+                  </div>
+
+                  <div className={styles.fieldWrapLast}>
+                    <label className={styles.label}>
+                      {t('Phone Number', 'מספר טלפון', 'رقم الهاتف')}
+                    </label>
+                    <input
+                      type="tel"
+                      placeholder={t('Enter phone number', 'הכנס טלפון', 'أدخل رقم الهاتف')}
+                      value={phone}
+                      onChange={e => { setPhone(e.target.value); setErrors(p => ({ ...p, phone: undefined })); }}
+                      className={`${styles.input} ${errors.phone ? styles.inputError : ''}`}
+                      style={inputDir}
+                    />
+                    {errors.phone && <p className={styles.errorMsg}>{errors.phone}</p>}
+                  </div>
+
+                  {errors.general && <p className={styles.generalError}>{errors.general}</p>}
+
+                  <button type="submit" disabled={loading} className={styles.submitBtn}>
+                    {loading ? t('Loading...', 'טוען...', 'جاري التحميل...') : t('Start Learning', 'כניסה', 'ابدأ التعلم')}
+                  </button>
+                </form>
+              </>
+            )}
+
+            {/* Admin tab */}
+            {activeTab === 'admin' && (
+              <>
+                <h1 className={styles.title}>
+                  {t('Admin Access', 'כניסת מנהל', 'دخول المدير')}
+                </h1>
+                <p className={styles.subtitle}>
+                  {t('Enter the admin password', 'הכנס את סיסמת המנהל', 'أدخل كلمة مرور المدير')}
+                </p>
+
+                <form onSubmit={handleAdminLogin} className={styles.form}>
+                  <div className={styles.fieldWrapLast}>
+                    <label className={styles.label}>
+                      {t('Password', 'סיסמא', 'كلمة المرور')}
+                    </label>
+                    <input
+                      type="password"
+                      placeholder={t('Enter password', 'הכנס סיסמא', 'أدخل كلمة المرور')}
+                      value={adminPassword}
+                      onChange={e => { setAdminPassword(e.target.value); setAdminError(''); }}
+                      className={`${styles.input} ${adminError ? styles.inputError : ''}`}
+                    />
+                    {adminError && <p className={styles.errorMsg}>{adminError}</p>}
+                  </div>
+
+                  <button type="submit" disabled={adminLoading} className={styles.submitBtn}>
+                    {adminLoading ? t('Loading...', 'טוען...', 'جاري التحميل...') : t('Enter Dashboard', 'כניסה לניהול', 'الدخول إلى لوحة التحكم')}
+                  </button>
+                </form>
+              </>
+            )}
+
           </div>
         </div>
       </div>

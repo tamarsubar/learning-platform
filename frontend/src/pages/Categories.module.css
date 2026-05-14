@@ -1,0 +1,77 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(11, 12, 30, 0.7);
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.breadcrumbSep {
+  color: #3a3a5a;
+}
+
+.breadcrumbCurrent {
+  color: white;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  color: #6060a0;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.linkBtn:hover {
+  color: #9b8fff;
+}
+
+.card {
+  background: #1c2035;
+  border: 1px solid rgba(124, 109, 250, 0.2);
+  border-radius: 14px;
+  padding: 42px 28px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.card:hover {
+  background: #22284a;
+  border-color: #7c6dfa;
+}
+
+.cardTitle {
+  font-weight: bold;
+  color: white;
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.cardLink {
+  color: #7c6dfa;
+  font-size: 13px;
+}

@@ -1,0 +1,10 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/User/Desktop/מסלול/שנה ב/project/learning-platform/backend/**)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\User\\Desktop\\�����\\��� �\\project\\learning-platform\\frontend\\src\\components"
+    ]
+  }
+}

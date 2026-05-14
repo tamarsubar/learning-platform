@@ -1,0 +1,44 @@
+.container {
+  position: relative;
+  min-height: 100vh;
+  background: #0b0c1e;
+}
+
+.star {
+  position: fixed;
+  border-radius: 50%;
+  background: white;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glowTopRight {
+  position: fixed;
+  width: 400px;
+  height: 400px;
+  top: -10%;
+  right: -10%;
+  background: rgba(124, 109, 250, 0.07);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glowBottomLeft {
+  position: fixed;
+  width: 300px;
+  height: 300px;
+  bottom: 5%;
+  left: -8%;
+  background: rgba(255, 229, 102, 0.04);
+  border-radius: 50%;
+  filter: blur(80px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.content {
+  position: relative;
+  z-index: 1;
+}

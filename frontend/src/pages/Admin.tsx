@@ -5,112 +5,113 @@ import Layout from '../components/Layout';
 import LangToggle from '../components/LangToggle';
 import UserMenu from '../components/UserMenu';
 import { useLanguage } from '../context/LanguageContext';
+import styles from './Admin.module.css';
 
 interface Prompt { id: number; prompt: string; response: string; created_at: string; }
 interface User { id: number; name: string; phone: string; Prompts?: Prompt[]; }
+
+const ADMIN_KEY = 'admin_auth';
 
 const Admin: React.FC = () => {
   const navigate = useNavigate();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedUser, setExpandedUser] = useState<number | null>(null);
-  const currentUser = JSON.parse(localStorage.getItem('user') || '{}');
+  const [authed] = useState(() => sessionStorage.getItem(ADMIN_KEY) === 'true');
+  const currentUser = { name: 'מנהל' };
   const { t } = useLanguage();
 
   useEffect(() => {
-    axios.get('http://localhost:5000/api/admin/users')
+    if (!authed) { navigate('/'); return; }
+    axios.get(`http://localhost:5000/api/admin/users?password=${sessionStorage.getItem(ADMIN_KEY + '_pw')}`)
       .then(res => setUsers(res.data))
       .catch(err => console.error(err))
       .finally(() => setLoading(false));
-  }, []);
+  }, [authed]);
+
+  if (!authed) return null;
 
   const totalPrompts = users.reduce((acc, u) => acc + (u.Prompts?.length || 0), 0);
   const formatDate = (s: string) => { const d = new Date(s); return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()}`; };
 
-  const linkBtn: React.CSSProperties = {
-    background: 'none', border: 'none', color: '#6060a0',
-    cursor: 'pointer', fontSize: '13px', padding: 0,
-  };
-
   return (
     <Layout>
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, Arial, sans-serif' }}>
-        <nav style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '12px 28px', borderBottom: '1px solid rgba(255,255,255,0.07)',
-          background: 'rgba(11,12,30,0.7)',
-        }}>
-          {/* Left: breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '13px' }}>
-            <button onClick={() => navigate('/categories')} style={linkBtn}
-              onMouseEnter={e => (e.currentTarget.style.color = '#9b8fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#6060a0')}>
+      <div className={styles.page}>
+        <nav className={styles.nav}>
+          <div className={styles.navLeft}>
+            <button onClick={() => navigate('/categories')} className={styles.linkBtn}>
               {t('Categories', 'קטגוריות', 'الفئات')}
             </button>
-            <span style={{ color: '#3a3a5a' }}>›</span>
-            <span style={{ color: 'white', fontWeight: '600' }}>{t('Admin', 'ניהול', 'الإدارة')}</span>
+            <span className={styles.breadcrumbSep}>›</span>
+            <span className={styles.breadcrumbCurrent}>{t('Admin', 'ניהול', 'الإدارة')}</span>
           </div>
-
-          {/* Right: controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+          <div className={styles.navRight}>
             <LangToggle />
-            <UserMenu user={currentUser} onSwitch={() => { localStorage.removeItem('user'); navigate('/'); }} />
+            <UserMenu user={currentUser} onSwitch={() => { sessionStorage.removeItem(ADMIN_KEY); sessionStorage.removeItem(ADMIN_KEY + '_pw'); navigate('/'); }} />
           </div>
         </nav>
 
-        <div style={{ flex: 1, padding: '48px 60px' }}>
-          <h1 style={{ color: 'white', fontSize: '32px', fontWeight: 'bold', marginBottom: '8px' }}>
+        <div className={styles.content}>
+          <h1 className={styles.title}>
             {t('User Management', 'ניהול משתמשים', 'إدارة المستخدمين')}
           </h1>
-          <p style={{ color: '#6b7080', fontSize: '15px', marginBottom: '40px' }}>
+          <p className={styles.subtitle}>
             {t('All users and their conversation history', 'רשימת כל המשתמשים והיסטוריית השיחות שלהם', 'جميع المستخدمين وسجل محادثاتهم')}
           </p>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', maxWidth: '500px', marginBottom: '40px' }}>
-            <div style={{ background: '#1c2035', border: '1px solid rgba(124,109,250,0.2)', borderRadius: '14px', padding: '20px 24px' }}>
-              <p style={{ color: '#8080a0', fontSize: '13px', marginBottom: '6px' }}>{t('Total Users', 'סה"כ משתמשים', 'إجمالي المستخدمين')}</p>
-              <p style={{ color: 'white', fontSize: '28px', fontWeight: 'bold' }}>{users.length}</p>
+          <div className={styles.statsGrid}>
+            <div className={styles.statCard}>
+              <p className={styles.statLabel}>{t('Total Users', 'סה"כ משתמשים', 'إجمالي المستخدمين')}</p>
+              <p className={styles.statValue}>{users.length}</p>
             </div>
-            <div style={{ background: '#1c2035', border: '1px solid rgba(124,109,250,0.2)', borderRadius: '14px', padding: '20px 24px' }}>
-              <p style={{ color: '#8080a0', fontSize: '13px', marginBottom: '6px' }}>{t('Total Conversations', 'סה"כ שיחות', 'إجمالي المحادثات')}</p>
-              <p style={{ color: 'white', fontSize: '28px', fontWeight: 'bold' }}>{totalPrompts}</p>
+            <div className={styles.statCard}>
+              <p className={styles.statLabel}>{t('Total Conversations', 'סה"כ שיחות', 'إجمالي المحادثات')}</p>
+              <p className={styles.statValue}>{totalPrompts}</p>
             </div>
           </div>
 
           {loading ? (
-            <div style={{ color: '#8080a0', textAlign: 'center' }}>{t('Loading...', 'טוען...', 'جاري التحميل...')}</div>
+            <div className={styles.noHistory}>{t('Loading...', 'טוען...', 'جاري التحميل...')}</div>
           ) : users.length === 0 ? (
-            <div style={{ color: '#8080a0', textAlign: 'center', marginTop: '60px' }}>{t('No users yet', 'אין משתמשים עדיין', 'لا يوجد مستخدمون بعد')}</div>
+            <div className={styles.noHistory}>{t('No users yet', 'אין משתמשים עדיין', 'لا يوجد مستخدمون بعد')}</div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', maxWidth: '900px' }}>
+            <div className={styles.userList}>
               {users.map(user => (
-                <div key={user.id} style={{ background: '#181a32', border: `1px solid ${expandedUser === user.id ? '#7c6dfa' : 'rgba(124,109,250,0.2)'}`, borderRadius: '12px', overflow: 'hidden', transition: 'border-color 0.2s' }}>
-                  <div onClick={() => setExpandedUser(expandedUser === user.id ? null : user.id)}
-                    style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '18px 24px', cursor: 'pointer' }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '14px' }}>
-                      <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: 'linear-gradient(135deg, #7c5cf5, #9b78ff)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '16px', flexShrink: 0 }}>
+                <div
+                  key={user.id}
+                  className={`${styles.userCard} ${expandedUser === user.id ? styles.userCardExpanded : ''}`}
+                >
+                  <div
+                    className={styles.userCardHeader}
+                    onClick={() => setExpandedUser(expandedUser === user.id ? null : user.id)}
+                  >
+                    <div className={styles.userCardLeft}>
+                      <div className={styles.avatar}>
                         {user.name.charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <p style={{ color: 'white', fontWeight: 'bold', fontSize: '15px', marginBottom: '2px' }}>{user.name}</p>
-                        <p style={{ color: '#8080a0', fontSize: '13px' }}>{user.phone}</p>
+                        <p className={styles.userName}>{user.name}</p>
+                        <p className={styles.userPhone}>{user.phone}</p>
                       </div>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <span style={{ color: '#7c6dfa', fontSize: '13px' }}>{user.Prompts?.length || 0} {t('conversations', 'שיחות', 'محادثات')}</span>
-                      <span style={{ color: '#7c6dfa', fontSize: '12px', transition: 'transform 0.2s', display: 'inline-block', transform: expandedUser === user.id ? 'rotate(180deg)' : 'rotate(0deg)' }}>▲</span>
+                    <div className={styles.userCardRight}>
+                      <span className={styles.userCount}>{user.Prompts?.length || 0} {t('conversations', 'שיחות', 'محادثات')}</span>
+                      <span
+                        className={styles.chevron}
+                        style={{ transform: expandedUser === user.id ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      >▲</span>
                     </div>
                   </div>
                   {expandedUser === user.id && (
-                    <div style={{ borderTop: '1px solid rgba(124,109,250,0.15)', padding: '16px 24px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                    <div className={styles.userCardBody}>
                       {!user.Prompts?.length ? (
-                        <p style={{ color: '#8080a0', textAlign: 'center', fontSize: '14px' }}>{t('No history for this user', 'אין היסטוריה למשתמש זה', 'لا يوجد سجل لهذا المستخدم')}</p>
+                        <p className={styles.noHistory}>{t('No history for this user', 'אין היסטוריה למשתמש זה', 'لا يوجد سجل لهذا المستخدم')}</p>
                       ) : (
                         user.Prompts.map(p => (
-                          <div key={p.id} style={{ background: '#1c2035', borderRadius: '10px', padding: '14px 18px', border: '1px solid rgba(124,109,250,0.1)' }}>
-                            <p style={{ color: '#6b7080', fontSize: '12px', marginBottom: '6px' }}>{formatDate(p.created_at)}</p>
-                            <p style={{ color: 'white', fontSize: '14px', fontWeight: '500', marginBottom: '6px' }}>{p.prompt}</p>
-                            <p style={{ color: '#9090b0', fontSize: '13px', lineHeight: '1.6' }}>{p.response}</p>
+                          <div key={p.id} className={styles.promptCard}>
+                            <p className={styles.promptDate}>{formatDate(p.created_at)}</p>
+                            <p className={styles.promptText}>{p.prompt}</p>
+                            <p className={styles.promptResponse}>{p.response}</p>
                           </div>
                         ))
                       )}

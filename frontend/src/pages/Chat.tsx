@@ -6,6 +6,7 @@ import LangToggle from '../components/LangToggle';
 import UserMenu from '../components/UserMenu';
 import { useLanguage } from '../context/LanguageContext';
 import { translateName } from '../utils/categoryTranslations';
+import styles from './Chat.module.css';
 
 
 interface Message {
@@ -59,7 +60,6 @@ const Chat: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const bottomRef = useRef<HTMLDivElement>(null);
 
-  // Start new session on mount
   useEffect(() => {
     const newSessionId = crypto.randomUUID();
     setActiveSessionId(newSessionId);
@@ -68,7 +68,6 @@ const Chat: React.FC = () => {
     setAnimatingId(id);
   }, []);
 
-  // Load topic label + past sessions
   useEffect(() => {
     if (!user.id) return;
     Promise.all([
@@ -90,7 +89,6 @@ const Chat: React.FC = () => {
         setActiveLabel(label);
       }
 
-      // Group history by session_id (or fallback to sub_category_id for old prompts)
       const grouped: Record<string, SessionMeta> = {};
       histRes.data.forEach((p: any) => {
         const sid = p.session_id || `legacy_${p.sub_category_id}`;
@@ -216,45 +214,26 @@ const Chat: React.FC = () => {
   };
 
   return (
-    <div style={{ height: '100vh', display: 'flex', background: '#0b0c1e', fontFamily: 'Inter, Arial, sans-serif', overflow: 'hidden' }}>
+    <div className={styles.page}>
 
       {/* Sidebar */}
       {sidebarOpen && (
-        <div style={{
-          width: '260px', flexShrink: 0,
-          background: '#0d0e24',
-          borderRight: '1px solid rgba(124,109,250,0.15)',
-          display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        }}>
-          {/* New Chat button */}
-          <div style={{ padding: '14px 12px', borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <button
-              onClick={() => navigate('/categories')}
-              style={{
-                width: '100%', padding: '10px 14px',
-                background: 'rgba(124,109,250,0.15)',
-                border: '1px solid rgba(124,109,250,0.35)',
-                borderRadius: '8px', color: 'white',
-                fontSize: '14px', fontWeight: '600',
-                cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '8px',
-                transition: 'background 0.15s',
-              }}
-              onMouseEnter={e => (e.currentTarget.style.background = 'rgba(124,109,250,0.25)')}
-              onMouseLeave={e => (e.currentTarget.style.background = 'rgba(124,109,250,0.15)')}
-            >
-              <span style={{ fontSize: '18px', lineHeight: 1 }}>+</span> {t('New Chat', 'שיחה חדשה', 'محادثة جديدة')}
+        <div className={styles.sidebar}>
+          <div className={styles.sidebarTop}>
+            <button onClick={() => navigate('/categories')} className={styles.newChatBtn}>
+              <span className={styles.newChatPlus}>+</span>
+              {t('New Chat', 'שיחה חדשה', 'محادثة جديدة')}
             </button>
           </div>
 
-          {/* Sessions list */}
-          <div style={{ flex: 1, overflowY: 'auto', padding: '8px' }}>
+          <div className={styles.sessionsList}>
             {sessions.length === 0 ? (
-              <p style={{ color: '#3a3a5a', fontSize: '13px', textAlign: 'center', marginTop: '32px' }}>
+              <p className={styles.sessionsEmpty}>
                 {t('No past conversations', 'אין שיחות קודמות', 'لا توجد محادثات سابقة')}
               </p>
             ) : (
               <>
-                <p style={{ color: '#3a3a5a', fontSize: '10px', fontWeight: '700', letterSpacing: '0.8px', padding: '8px 8px 6px', textTransform: 'uppercase' }}>
+                <p className={styles.sessionsLabel}>
                   {t('Recent', 'אחרון', 'الأخيرة')}
                 </p>
                 {sessions.map(session => {
@@ -263,21 +242,14 @@ const Chat: React.FC = () => {
                     <div
                       key={session.sessionId}
                       onClick={() => loadSession(session)}
-                      style={{
-                        padding: '9px 12px', borderRadius: '8px', cursor: 'pointer',
-                        background: isActive ? 'rgba(124,109,250,0.18)' : 'transparent',
-                        border: `1px solid ${isActive ? 'rgba(124,109,250,0.35)' : 'transparent'}`,
-                        marginBottom: '2px', transition: 'background 0.15s, border-color 0.15s',
-                      }}
-                      onMouseEnter={e => { if (!isActive) (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.05)'; }}
-                      onMouseLeave={e => { if (!isActive) (e.currentTarget as HTMLDivElement).style.background = 'transparent'; }}
+                      className={`${styles.sessionItem} ${isActive ? styles.sessionItemActive : ''}`}
                     >
-                      <p style={{ color: isActive ? 'white' : '#b0b0c8', fontSize: '13px', fontWeight: isActive ? '600' : '400', margin: 0, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      <p className={`${styles.sessionLabel} ${isActive ? styles.sessionLabelActive : ''}`}>
                         {session.label}
                       </p>
-                      <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '3px' }}>
-                        <span style={{ color: '#3a3a5a', fontSize: '11px' }}>{session.messageCount} {t('msgs', 'הודעות', 'رسائل')}</span>
-                        <span style={{ color: '#3a3a5a', fontSize: '11px' }}>{formatDate(session.lastDate)}</span>
+                      <div className={styles.sessionMeta}>
+                        <span className={styles.sessionMetaText}>{session.messageCount} {t('msgs', 'הודעות', 'رسائل')}</span>
+                        <span className={styles.sessionMetaText}>{formatDate(session.lastDate)}</span>
                       </div>
                     </div>
                   );
@@ -286,76 +258,48 @@ const Chat: React.FC = () => {
             )}
           </div>
 
-          {/* User badge */}
-          <div style={{ padding: '12px', borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+          <div className={styles.sidebarFooter}>
             <UserMenu user={user} onSwitch={() => { localStorage.removeItem('user'); navigate('/'); }} />
           </div>
         </div>
       )}
 
       {/* Main chat area */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden', minWidth: 0 }}>
+      <div className={styles.main}>
 
         {/* Navbar */}
-        <nav style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '11px 20px',
-          borderBottom: '1px solid rgba(255,255,255,0.07)',
-          background: 'rgba(11,12,30,0.85)',
-          flexShrink: 0,
-        }}>
-          {/* Left: sidebar toggle + breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', minWidth: 0 }}>
-            <button
-              onClick={() => setSidebarOpen(p => !p)}
-              title="Toggle sidebar"
-              style={{ background: 'none', border: 'none', color: '#6060a0', cursor: 'pointer', fontSize: '20px', lineHeight: 1, padding: '0 4px', flexShrink: 0 }}
-            >
+        <nav className={styles.nav}>
+          <div className={styles.navLeft}>
+            <button onClick={() => setSidebarOpen(p => !p)} title="Toggle sidebar" className={styles.toggleBtn}>
               ☰
             </button>
             {topicLabel && (() => {
               const parts = topicLabel.split(' › ');
               return (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', fontSize: '13px', overflow: 'hidden' }}>
-                  <button
-                    onClick={() => navigate('/categories')}
-                    style={{ background: 'none', border: 'none', color: '#6060a0', cursor: 'pointer', fontSize: '13px', padding: 0, whiteSpace: 'nowrap', flexShrink: 0 }}
-                    onMouseEnter={e => (e.currentTarget.style.color = '#9b8fff')}
-                    onMouseLeave={e => (e.currentTarget.style.color = '#6060a0')}
-                  >
+                <div className={styles.breadcrumb}>
+                  <button onClick={() => navigate('/categories')} className={styles.breadcrumbBtn}>
                     {t('Categories', 'קטגוריות', 'الفئات')}
                   </button>
-                  <span style={{ color: '#3a3a5a' }}>›</span>
+                  <span className={styles.breadcrumbSep}>›</span>
                   {parts.length > 1 ? (
                     <>
-                      <button
-                        onClick={() => navigate(`/categories/${activeCategoryId}`)}
-                        style={{ background: 'none', border: 'none', color: '#6060a0', cursor: 'pointer', fontSize: '13px', padding: 0, whiteSpace: 'nowrap', flexShrink: 0 }}
-                        onMouseEnter={e => (e.currentTarget.style.color = '#9b8fff')}
-                        onMouseLeave={e => (e.currentTarget.style.color = '#6060a0')}
-                      >
+                      <button onClick={() => navigate(`/categories/${activeCategoryId}`)} className={styles.breadcrumbBtn}>
                         {parts[0]}
                       </button>
-                      <span style={{ color: '#3a3a5a' }}>›</span>
-                      <span style={{ color: 'white', fontSize: '13px', fontWeight: '600', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
-                        {parts[1]}
-                      </span>
+                      <span className={styles.breadcrumbSep}>›</span>
+                      <span className={styles.breadcrumbCurrent}>{parts[1]}</span>
                     </>
                   ) : (
-                    <span style={{ color: 'white', fontSize: '13px', fontWeight: '600' }}>{parts[0]}</span>
+                    <span className={styles.breadcrumbCurrent}>{parts[0]}</span>
                   )}
                 </div>
               );
             })()}
           </div>
 
-          {/* Right: history + lang + robot */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px', flexShrink: 0 }}>
-            <button onClick={() => navigate('/history')} style={{ background: 'none', border: 'none', color: '#6060a0', cursor: 'pointer', fontSize: '13px', whiteSpace: 'nowrap' }}
-              onMouseEnter={e => (e.currentTarget.style.color = '#9b8fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#6060a0')}
-            >
-              {t('History', 'היסטוריה', 'السجل')}
+          <div className={styles.navRight}>
+            <button onClick={() => navigate('/history')} className={styles.historyBtn}>
+              {t('Conversation History', 'היסטוריית שיחות', 'سجل المحادثات')}
             </button>
             <LangToggle />
             <Robot size={32} />
@@ -363,38 +307,25 @@ const Chat: React.FC = () => {
         </nav>
 
         {/* Messages */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '28px 40px' }}>
+        <div className={styles.messages}>
           {messages.map(msg =>
             msg.role === 'assistant' ? (
-              <div key={msg.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '12px', marginBottom: '20px' }}>
+              <div key={msg.id} className={styles.aiRow}>
                 <Robot size={40} />
-                <div style={{
-                  background: 'rgba(255,255,255,0.05)',
-                  border: '1px solid rgba(255,255,255,0.09)',
-                  borderRadius: '4px 16px 16px 16px',
-                  padding: '14px 18px',
-                  color: 'white', maxWidth: '540px', fontSize: '15px', lineHeight: '1.65', whiteSpace: 'pre-wrap',
-                }}>
+                <div className={styles.aiBubble}>
                   {animatingId === msg.id
                     ? <TypingMessage content={msg.content} onDone={() => setAnimatingId(null)} />
                     : msg.content}
                 </div>
               </div>
             ) : (
-              <div key={msg.id} style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: '20px' }}>
-                <div style={{
-                  background: 'linear-gradient(135deg, #7c5cf5, #9b78ff)',
-                  borderRadius: '16px 16px 4px 16px',
-                  padding: '14px 18px',
-                  color: 'white', maxWidth: '540px', fontSize: '15px', lineHeight: '1.65',
-                }}>
-                  {msg.content}
-                </div>
+              <div key={msg.id} className={styles.userRow}>
+                <div className={styles.userBubble}>{msg.content}</div>
               </div>
             )
           )}
           {loading && (
-            <div style={{ display: 'flex', alignItems: 'center', gap: '10px', color: '#7c6dfa', fontSize: '14px' }}>
+            <div className={styles.typingRow}>
               <Robot size={34} />
               <span>{t('Typing...', 'כותב...', 'يكتب...')}</span>
             </div>
@@ -403,32 +334,17 @@ const Chat: React.FC = () => {
         </div>
 
         {/* Input bar */}
-        <div style={{ padding: '14px 24px 24px', background: 'rgba(0,0,0,0.25)', borderTop: '1px solid rgba(255,255,255,0.06)', flexShrink: 0 }}>
-          <div style={{ display: 'flex', gap: '10px', maxWidth: '820px', margin: '0 auto' }}>
+        <div className={styles.inputBar}>
+          <div className={styles.inputRow}>
             <input
               type="text"
               value={input}
               onChange={e => setInput(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && sendMessage()}
               placeholder={t('Ask the robot...', 'שאל את הרובוט...', 'اسأل الروبوت...')}
-              style={{
-                flex: 1, padding: '13px 18px',
-                background: '#0f0f2a',
-                border: '1px solid rgba(124,109,250,0.2)',
-                borderRadius: '10px', color: 'white', fontSize: '15px', outline: 'none',
-              }}
+              className={styles.textInput}
             />
-            <button
-              onClick={sendMessage}
-              disabled={loading}
-              style={{
-                padding: '13px 26px',
-                background: loading ? '#333' : 'linear-gradient(135deg, #7c5cf5, #9b78ff)',
-                border: 'none', borderRadius: '10px',
-                color: 'white', fontSize: '15px', fontWeight: 'bold',
-                cursor: loading ? 'not-allowed' : 'pointer', whiteSpace: 'nowrap',
-              }}
-            >
+            <button onClick={sendMessage} disabled={loading} className={styles.sendBtn}>
               {t('Send', 'שלח', 'أرسل')}
             </button>
           </div>

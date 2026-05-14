@@ -1,0 +1,123 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  font-family: Inter, Arial, sans-serif;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 28px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+  background: rgba(11, 12, 30, 0.7);
+}
+
+.navLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+}
+
+.navRight {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.breadcrumbSep {
+  color: #3a3a5a;
+}
+
+.breadcrumbCurrent {
+  color: white;
+  font-weight: 600;
+}
+
+.linkBtn {
+  background: none;
+  border: none;
+  color: #6060a0;
+  cursor: pointer;
+  font-size: 13px;
+  padding: 0;
+  transition: color 0.15s;
+}
+
+.linkBtn:hover {
+  color: #9b8fff;
+}
+
+.content {
+  flex: 1;
+  padding: 60px 80px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.inner {
+  width: 100%;
+  max-width: 720px;
+}
+
+.title {
+  color: white;
+  font-size: 38px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.subtitle {
+  color: #6b7080;
+  font-size: 15px;
+  margin-bottom: 48px;
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  background: #181a32;
+  border: 1px solid rgba(124, 109, 250, 0.15);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.item:hover {
+  background: #1e2245;
+  border-color: #7c6dfa;
+}
+
+.itemLeft {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.itemIndex {
+  color: #7c6dfa;
+  font-size: 13px;
+  font-weight: bold;
+}
+
+.itemName {
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+}
+
+.itemArrow {
+  color: #7c6dfa;
+  font-size: 16px;
+}

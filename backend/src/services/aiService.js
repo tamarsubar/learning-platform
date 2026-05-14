@@ -7,7 +7,7 @@ exports.generateResponse = async (promptText) => {
         'Authorization': `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-3.5-turbo",
+        model: "gpt-4o",
         messages: [{ role: "user", content: promptText }]
       })
     });
@@ -22,6 +22,6 @@ exports.generateResponse = async (promptText) => {
     return data.choices[0].message.content;
   } catch (error) {
     console.error("AI Error:", error.message);
-    return "מצטער, ה-AI נתקל בשגיאה. נסי שוב מאוחר יותר.";
+    return "Sorry, the AI encountered an error. Please try again later.";
   }
 };

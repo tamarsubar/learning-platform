@@ -7,6 +7,7 @@ import LangToggle from '../components/LangToggle';
 import UserMenu from '../components/UserMenu';
 import { useLanguage } from '../context/LanguageContext';
 import { translateName } from '../utils/categoryTranslations';
+import styles from './Categories.module.css';
 
 interface Category { id: number; name: string; }
 
@@ -14,7 +15,6 @@ const Categories: React.FC = () => {
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
-  const [hoveredId, setHoveredId] = useState<number | null>(null);
   const user = JSON.parse(localStorage.getItem('user') || '{}');
   const { t, lang } = useLanguage();
 
@@ -25,34 +25,18 @@ const Categories: React.FC = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  const linkBtn: React.CSSProperties = {
-    background: 'none', border: 'none', color: '#6060a0', cursor: 'pointer',
-    fontSize: '13px', padding: 0,
-  };
-
   return (
     <Layout>
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', fontFamily: 'Inter, Arial, sans-serif' }}>
-        <nav style={{
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-          padding: '12px 28px', borderBottom: '1px solid rgba(255,255,255,0.07)',
-          background: 'rgba(11,12,30,0.7)',
-        }}>
-          {/* Left: breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <div className={styles.page}>
+        <nav className={styles.nav}>
+          <div className={styles.navLeft}>
             <Robot size={32} />
-            <span style={{ color: '#3a3a5a' }}>›</span>
-            <span style={{ color: 'white', fontSize: '13px', fontWeight: '600' }}>
-              {t('Categories', 'קטגוריות', 'الفئات')}
-            </span>
+            <span className={styles.breadcrumbSep}>›</span>
+            <span className={styles.breadcrumbCurrent}>{t('Categories', 'קטגוריות', 'الفئات')}</span>
           </div>
-
-          {/* Right: controls */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-            <button onClick={() => navigate('/history')} style={linkBtn}
-              onMouseEnter={e => (e.currentTarget.style.color = '#9b8fff')}
-              onMouseLeave={e => (e.currentTarget.style.color = '#6060a0')}>
-              {t('My History', 'היסטוריה', 'سجلي')}
+          <div className={styles.navRight}>
+            <button onClick={() => navigate('/history')} className={styles.linkBtn}>
+              {t('Conversation History', 'היסטוריית שיחות', 'سجل المحادثات')}
             </button>
             <LangToggle />
             <UserMenu user={user} onSwitch={() => { localStorage.removeItem('user'); navigate('/'); }} />
@@ -72,20 +56,9 @@ const Categories: React.FC = () => {
           ) : (
             <div className="categories-grid">
               {categories.map(cat => (
-                <div key={cat.id} onClick={() => navigate(`/categories/${cat.id}`)}
-                  onMouseEnter={() => setHoveredId(cat.id)} onMouseLeave={() => setHoveredId(null)}
-                  style={{
-                    background: hoveredId === cat.id ? '#22284a' : '#1c2035',
-                    border: `1px solid ${hoveredId === cat.id ? '#7c6dfa' : 'rgba(124,109,250,0.2)'}`,
-                    borderRadius: '14px', padding: '42px 28px', cursor: 'pointer',
-                    transition: 'border-color 0.2s, background 0.2s',
-                  }}>
-                  <div style={{ fontWeight: 'bold', color: 'white', fontSize: '18px', marginBottom: '10px' }}>
-                    {translateName(cat.name, lang)}
-                  </div>
-                  <div style={{ color: '#7c6dfa', fontSize: '13px' }}>
-                    {t('→ View topics', '← הצג נושאים', '← عرض المواضيع')}
-                  </div>
+                <div key={cat.id} onClick={() => navigate(`/categories/${cat.id}`)} className={styles.card}>
+                  <div className={styles.cardTitle}>{translateName(cat.name, lang)}</div>
+                  <div className={styles.cardLink}>{t('→ View topics', '← הצג נושאים', '← عرض المواضيع')}</div>
                 </div>
               ))}
             </div>

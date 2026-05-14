@@ -1,0 +1,76 @@
+.wrapper {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.trigger {
+  padding: 4px 2px;
+  background: none;
+  border: none;
+  color: #6060a0;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+
+.trigger:hover,
+.triggerOpen {
+  color: #9b8fff;
+}
+
+.arrow {
+  font-size: 9px;
+  opacity: 0.6;
+}
+
+.dropdown {
+  position: fixed;
+  background: #1a1b35;
+  border: 1px solid rgba(124, 109, 250, 0.25);
+  border-radius: 10px;
+  padding: 6px;
+  min-width: 130px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  z-index: 9999;
+}
+
+.langBtn {
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: #b0b0c8;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background 0.15s;
+}
+
+.langBtn:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.langBtnActive {
+  background: rgba(124, 109, 250, 0.2);
+  color: white;
+  font-weight: 600;
+}
+
+.langBtnActive:hover {
+  background: rgba(124, 109, 250, 0.3);
+}
+
+.checkmark {
+  color: #7c6dfa;
+  font-size: 11px;
+}
